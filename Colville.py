@@ -18,6 +18,11 @@ import threading
 import time, datetime
 import configparser
 
+import csv
+# csvファイルを使えるように
+
+import matplotlib.pyplot as plt
+
 # --- Load configuration ---
 args = sys.argv
 config_ini = configparser.ConfigParser()
@@ -132,6 +137,42 @@ for i, val in enumerate(best_params):
     print(f"- Best {i} parameter: {best_params[val]}")
 
 # optuna.visualization.plot_param_importances(study).show()
-# plot_optimization_history(study).show()
+plot_optimization_history(study).show()
 # plot_parallel_coordinate(study).show()
 # plot_contour(study).show()
+
+# すべてのトライアル結果をCSVファイルに書き込む
+with open('optimization_trial_results.csv', mode='w', newline='') as file:
+    writer = csv.writer(file)
+    
+    # ヘッダー行を書く
+    writer.writerow(['Trial Number', 'Params', 'Objective Value'])
+    
+    # 各トライアルの結果を書く
+    for trial in study.trials:
+        # パラメータを文字列としてまとめる
+        params_str = ', '.join([f'{key}: {value}' for key, value in trial.params.items()])
+        
+        # 各トライアルごとに、トライアル番号、パラメータ、目的関数の値を書き込む
+        writer.writerow([trial.number, params_str, trial.value])
+
+print("Trial results have been saved to optimization_trial_results.csv")
+
+# トライアル番号と目的関数の値をリストに保存
+trial_numbers = [trial.number for trial in study.trials]
+objective_values = [trial.value for trial in study.trials]
+
+# トライアル番号に対する目的関数の値をプロット
+plt.figure(figsize=(10, 6))
+plt.plot(trial_numbers, objective_values, marker='o', linestyle='-', color='b')
+
+# グラフのラベル設定
+plt.title('Objective Value by Trial Number')
+plt.xlabel('Trial Number')
+plt.ylabel('Objective Value')
+
+# グリッドを表示
+plt.grid(True)
+
+# グラフを表示
+plt.savefig("最適化.png")
