@@ -4,6 +4,8 @@ import graphviz
 import lingam
 from lingam.utils import make_prior_knowledge, make_dot
 
+import re
+
 def make_prior_knowledge_graph(prior_knowledge_matrix):
     d = graphviz.Digraph(engine='dot')
 
@@ -21,16 +23,32 @@ def make_prior_knowledge_graph(prior_knowledge_matrix):
             d.edge(labels[from_], labels[to], style='dashed')
     return d
 
-df = pd.read_csv('tpe500.csv', sep=',')
+df = pd.read_csv('optimization_trial_results.csv', sep=',')
 
-use_columns = ['PX1', 'PY1', 'PX2', 'PY2', 'PX4', 'PY4', 'Q']
+# 'Params'列から数値を抽出して新しいカラムを作成
+def extract_param_value(param_str, param_name):
+    match = re.search(f'{param_name}: ([0-9.]+)', param_str)
+    if match:
+        return float(match.group(1))
+    return None
+
+# 新しい列を作成
+df['TEST:X0'] = df['Params'].apply(lambda x: extract_param_value(x, 'TEST:X0'))
+df['TEST:X1'] = df['Params'].apply(lambda x: extract_param_value(x, 'TEST:X1'))
+df['TEST:X2'] = df['Params'].apply(lambda x: extract_param_value(x, 'TEST:X2'))
+df['TEST:X3'] = df['Params'].apply(lambda x: extract_param_value(x, 'TEST:X3'))
+
+# 不要な'Params'列を削除
+df = df.drop(columns=['Params'])
+
+use_columns = ['TEST:X0', 'TEST:X1' , 'TEST:X2' , 'TEST:X3' , 'Objective Value']
 
 use_df = df[use_columns]
 
 prior_knowledge = make_prior_knowledge(
-    n_variables=7,
-    # sink_variables=[6],
-    exogenous_variables=[0, 1, 2, 3, 4, 5],
+    n_variables=5,
+    # sink_variables=[4],
+    exogenous_variables=[0, 1, 2, 3],
 )
 print(prior_knowledge)
 
