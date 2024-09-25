@@ -1,11 +1,13 @@
 digraph {
-	"TEST:X0"
-	"TEST:X1"
-	"TEST:X2"
-	"TEST:X3"
+	X0
+	X1
+	X2
+	X3
 	"Objective Value"
-	TEST:X2 -> "Objective Value" [label=-113.89]
-	TEST:X3 -> "Objective Value" [label=79.69]
+	X0 -> "Objective Value" [label=0.59]
+	X1 -> "Objective Value" [label=-0.51]
+	X2 -> "Objective Value" [label=0.51]
+	X3 -> "Objective Value" [label=-0.42]
 	{
 		rank=same
 	}

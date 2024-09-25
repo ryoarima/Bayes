@@ -23,6 +23,9 @@ import csv
 
 import matplotlib.pyplot as plt
 
+import pandas as pd
+import seaborn as sns
+
 # --- Load configuration ---
 args = sys.argv
 config_ini = configparser.ConfigParser()
@@ -137,9 +140,12 @@ for i, val in enumerate(best_params):
     print(f"- Best {i} parameter: {best_params[val]}")
 
 # optuna.visualization.plot_param_importances(study).show()
-plot_optimization_history(study).show()
+# plot_optimization_history(study).show()
 # plot_parallel_coordinate(study).show()
 # plot_contour(study).show()
+
+
+
 
 # すべてのトライアル結果をCSVファイルに書き込む
 with open('optimization_trial_results.csv', mode='w', newline='') as file:
@@ -176,3 +182,16 @@ plt.grid(True)
 
 # グラフを表示
 plt.savefig("最適化.png")
+
+
+
+param_values = [trial.params for trial in study.trials]
+param_df = pd.DataFrame(param_values)
+
+correlation_matrix = param_df.corr()
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm', square=True)
+plt.title('Correlation Heatmap of Parameters and Objective Value')
+plt.savefig("optimization_correlation_heatmap.png")  # 相関関係を示すヒートマップを保存
+plt.show()  # ヒートマップを表示
